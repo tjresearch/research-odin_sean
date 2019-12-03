@@ -7,11 +7,11 @@ import numpy as np
 import glob
 np.random.seed(123)
 
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
-from keras.utils import np_utils
-from keras.datasets import mnist
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.layers import Dense, Dropout, Activation, Flatten
+from tensorflow.python.keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
+from tensorflow.python.keras.utils import np_utils
+from tensorflow.python.keras.datasets import mnist
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -23,6 +23,9 @@ import time
 
 #THIS NEEDS TO BE HANDLED DIFFERENTLY
 num_authors = 20
+
+from tensorflow.python.keras import backend
+backend.set_image_data_format('channels_first')
 
 # # map data to input and output arrays
 # x = []
@@ -88,17 +91,17 @@ print(y_train.shape)
 
 # Model Architecture: This is where most of the work is
 model = Sequential()
-model.add(ZeroPadding2D(padding=(1,1)))
+model.add(ZeroPadding2D(padding=(1,1),input_shape=(1, 113, 113)))
 
-model.add(Convolution2D(filters=96, kernel_size=(5, 5),strides=(2,2)))
+model.add(Convolution2D(filters=96, kernel_size=(5, 5), strides=(2,2)))
 model.add(Activation('relu'))
 
-model.add(MaxPooling2D(pools_size=(3,3),strides=(2,2)))
+model.add(MaxPooling2D(pool_size=(3,3),strides=(2,2)))
 
 model.add(Convolution2D(filters = 256, kernel_size=(3,3), strides=(1,1),padding='same'))
 model.add(Activation('relu'))
 
-model.add(MaxPooling2D(pools_size=(3,3),strides=(2,2)))
+model.add(MaxPooling2D(pool_size=(3,3),strides=(2,2)))
 
 model.add(Convolution2D(filters = 384, kernel_size=(3,3), strides=(1,1),padding='same'))
 model.add(Activation('relu'))
@@ -109,7 +112,10 @@ model.add(Activation('relu'))
 model.add(Convolution2D(filters = 256, kernel_size=(3,3), strides=(1,1),padding='same'))
 model.add(Activation('relu'))
 
-model.add(MaxPooling2D(pools_size=(3,3),strides=(2,2)))
+model.add(MaxPooling2D(pool_size=(3,3),strides=(2,2)))
+
+model.add(Flatten())
+model.add(Dropout(0.5))
 
 model.add(Dense(1024))
 model.add(Activation('relu'))
@@ -140,8 +146,9 @@ model.compile(loss='categorical_crossentropy',
               optimizer='adam',
               metrics=['accuracy'])
 
+print(model.summary())
 model.fit(X_train, y_train,
-          batch_size=32, nb_epoch=10, verbose=1)
+          batch_size=32, epochs=10, verbose=1)
 # save model
 filename = 'finalized_model.sav'
 pkl.dump(model, open(filename, 'wb'))
