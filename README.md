@@ -18,6 +18,6 @@ matplotlib
 
 glob
 
-# Installation Intstructions
+# Installation Instructions
 
 # Run Instructions
